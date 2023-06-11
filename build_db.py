@@ -10,9 +10,7 @@ def get_ipos():
         ipos = pd.concat([ipos,ipos_temp])
     return ipos
 
-def get_cik_df():
-    headers = {'user-agent': 'sprintboy207@gmail.com'}
-
+def get_cik_df(headers):
     # CIK df
     tickers = requests.get("https://www.sec.gov/files/company_tickers.json", headers=headers)
     df = pd.DataFrame.from_dict(tickers.json(), orient='index')
@@ -35,12 +33,18 @@ def get_s1(ticker,df):
     s1_url = f'https://www.sec.gov/Archives/edgar/data/{cik}/{acn_num}/{doc}'
     print(s1_url)
 
+def get_text(url,headers):
+    r = requests.get(url, headers=headers)
+    txt = r.text
+
 # main
-cik_df = get_cik_df()
+headers = {'user-agent': 'sprintboy207@gmail.com'}
+cik_df = get_cik_df(headers)
 ipos = get_ipos()[:5]
 print(len(ipos))
 for ticker in ipos.Symbol.values:
     print(ticker)
-    get_s1(ticker,cik_df)
+    url = get_s1(ticker,cik_df)
+    text = get_text(url)
 
 print('done')
