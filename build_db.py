@@ -1,6 +1,7 @@
 # setup
 import requests
 import pandas as pd
+from bs4 import BeautifulSoup
 
 def get_ipos():
     ipos = pd.DataFrame()
@@ -31,20 +32,22 @@ def get_s1(ticker,df):
     acn_num = fillings['filings']['recent']['accessionNumber'][s1_index].replace('-', '')
     doc = fillings['filings']['recent']['primaryDocument'][s1_index]
     s1_url = f'https://www.sec.gov/Archives/edgar/data/{cik}/{acn_num}/{doc}'
-    print(s1_url)
+    return s1_url
 
 def get_text(url,headers):
     r = requests.get(url, headers=headers)
-    txt = r.text
+    soup = BeautifulSoup(r.content,'html.parser')
+    text = soup.text.strip().replace('/n','')
 
 # main
 headers = {'user-agent': 'sprintboy207@gmail.com'}
 cik_df = get_cik_df(headers)
-ipos = get_ipos()[:5]
+ipos = get_ipos()[:2]
 print(len(ipos))
 for ticker in ipos.Symbol.values:
     print(ticker)
     url = get_s1(ticker,cik_df)
-    text = get_text(url)
+    print(url)
+    text = get_text(url,headers)
 
 print('done')
